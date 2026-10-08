@@ -9,6 +9,10 @@ def obtener_por_id(id):
     return db.transaccion.find_unique(where={"id": id})
 
 
+def obtener_por_codigo(codigo):
+    return db.transaccion.find_unique(where={"codigo": codigo})
+
+
 def crear(datos):
     return db.transaccion.create(data=datos)
 

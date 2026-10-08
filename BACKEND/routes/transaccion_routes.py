@@ -11,21 +11,29 @@ def listar():
     return jsonify(data), status
 
 
+@transaccion_bp.route("/resumen", methods=["GET"])
+def resumen():
+    data, status = controller.obtener_resumen()
+    return jsonify(data), status
+
+
 @transaccion_bp.route("/<int:id>", methods=["GET"])
 def obtener(id):
     data, status = controller.obtener_transaccion(id)
     return jsonify(data), status
 
 
+# silent=True: si el cuerpo no es JSON devuelve None en vez de lanzar una excepción;
+# el controller se encarga de responder con un mensaje claro.
 @transaccion_bp.route("/", methods=["POST"])
 def crear():
-    data, status = controller.crear_transaccion(request.get_json())
+    data, status = controller.crear_transaccion(request.get_json(silent=True))
     return jsonify(data), status
 
 
 @transaccion_bp.route("/<int:id>", methods=["PUT"])
 def actualizar(id):
-    data, status = controller.actualizar_transaccion(id, request.get_json())
+    data, status = controller.actualizar_transaccion(id, request.get_json(silent=True))
     return jsonify(data), status
 
 
@@ -33,5 +41,3 @@ def actualizar(id):
 def eliminar(id):
     data, status = controller.eliminar_transaccion(id)
     return jsonify(data), status
-
-

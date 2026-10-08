@@ -1,31 +1,41 @@
 const BASE_URL = "http://localhost:5000/api/transacciones";
 
-export async function obtenerTransacciones() {
-  const respuesta = await fetch(`${BASE_URL}/`);
-  return respuesta.json();
+// Una sola función hace todas las peticiones: si algo falla (servidor apagado o
+// respuesta con código de error), lanza un Error con un mensaje legible.
+async function peticion(ruta, opciones = {}) {
+  let respuesta;
+  try {
+    respuesta = await fetch(`${BASE_URL}${ruta}`, {
+      headers: { "Content-Type": "application/json" },
+      ...opciones,
+    });
+  } catch {
+    throw new Error("No se pudo conectar con el servidor. ¿Está encendido el backend?");
+  }
+
+  const datos = await respuesta.json().catch(() => ({}));
+  if (!respuesta.ok) {
+    throw new Error(datos.error || `Error ${respuesta.status}`);
+  }
+  return datos;
 }
 
-export async function crearTransaccion(datos) {
-  const respuesta = await fetch(`${BASE_URL}/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(datos),
-  });
-  return respuesta.json();
+export function obtenerTransacciones() {
+  return peticion("/");
 }
 
-export async function actualizarTransaccion(id, datos) {
-  const respuesta = await fetch(`${BASE_URL}/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(datos),
-  });
-  return respuesta.json();
+export function obtenerResumen() {
+  return peticion("/resumen");
 }
 
-export async function eliminarTransaccion(id) {
-  const respuesta = await fetch(`${BASE_URL}/${id}`, {
-    method: "DELETE",
-  });
-  return respuesta.json();
+export function crearTransaccion(datos) {
+  return peticion("/", { method: "POST", body: JSON.stringify(datos) });
+}
+
+export function actualizarTransaccion(id, datos) {
+  return peticion(`/${id}`, { method: "PUT", body: JSON.stringify(datos) });
+}
+
+export function eliminarTransaccion(id) {
+  return peticion(`/${id}`, { method: "DELETE" });
 }
